@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  hub:
+    image: oc-selenium/hub:3.4.0
+    ports:
+      - 4444:4444
+    build:
+      context: HubOC
+    environment:
+      HTTPS_PROXY: ${HTTP_PROXY}
+      HTTP_PROXY: ${HTTP_PROXY}
+
+  firefox:
+    image: oc-selenium/node-firefox:3.4.0
+    build:
+      context: NodeFirefoxOC
+    depends_on:
+      - hub
+    environment:
+     HUB_PORT_4444_TCP_ADDR: hub
+     HUB_PORT_4444_TCP_PORT: 4444
+     HTTPS_PROXY: ${HTTP_PROXY}
+     HTTP_PROXY: ${HTTP_PROXY}
+
+  chrome:
+    image: oc-selenium/node-chrome:3.4.0
+    # shm_size requires docker-compose > 1.7.0
+    shm_size: 2G
+    build:
+      context: NodeChromeATC
+    depends_on:
+      - hub
+    environment:
+      HUB_PORT_4444_TCP_ADDR: hub
+      HUB_PORT_4444_TCP_PORT: 4444
+      HTTPS_PROXY: ${HTTP_PROXY}
+      HTTP_PROXY: ${HTTP_PROXY}
